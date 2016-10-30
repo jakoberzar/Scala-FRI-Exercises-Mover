@@ -23,3 +23,17 @@ You can either always copy the program to the root folder or add it to path so y
 Run it when you're done with your code and it'll copy it to "my" folder, ready to upload to web.
 When downloading peer review code, copy 1st one to review/1st folder that was created, and so on.
 Afterwards, run it with paramater "1" to copy the 1st one's files to the project folder.
+
+`ScalaExercisesMover` for continous mode with multiple commands or
+
+`ScalaExercisesMover <command>` for execution of only one command
+
+## Commands
+`my` Copies files from 'my' folder to project folder
+
+`updatemy` Updates the 'my' folder from project folder
+
+`1` Copies files from 'review/1st' folder to project folder
+_(similar goes for `2` and `3`)_
+
+`q` or _enter_ quits the continous mode.

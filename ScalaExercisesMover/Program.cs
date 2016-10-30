@@ -22,7 +22,9 @@ namespace ScalaExercisesMover
 
         // Testing
         // A folder that is used instead of real current directory; for testing.
-        static string testingDirectory = @"C:\Users\jakob\OneDrive\FRI II\Scala\W4";
+        //static string testingDirectory = @"C:\Users\jakob\OneDrive\FRI II\Scala\W4";
+        static string testingDirectory = @"";
+
 
         static void Main(string[] args)
         {
@@ -126,24 +128,55 @@ namespace ScalaExercisesMover
         private static void CheckForFolders()
         {
             // Checks for the "my" folder
-            if (!Directory.Exists(myFolder)) throw new Exception("\"my\" folder does not exist!");
-            int myFileCount = Directory.GetFiles(myFolder).Length;
-            if (myFileCount == 0) throw new Exception("\"my\" folder does not have any files!");
+            CreateFolderIfNotExists(myFolder);
+            if (Directory.GetFiles(myFolder).Length == 0) {
+                // Copy files to 'my' folder
+                Console.WriteLine("There were no files in the \"my\" folder, so I copied them.");
+                string projectMain = projectFolder + @"\src\main\scala";
+                string projectTests = projectFolder + @"\src\test\scala";
+                string[] filesMain = Directory.GetFiles(projectMain);
+                string[] filesTests = Directory.GetFiles(projectTests);
+                string[] files = filesMain.Concat(filesTests).ToArray();
+                foreach (string file in files) {
+                    string destination = myFolder + "\\" + Path.GetFileName(file);
+                    File.Copy(file, destination);
+                    LogCopyToConsole(file, destination);
+                }
+
+            }
 
             // Checks if review and those folders exits. If not, creates them
-            Directory.CreateDirectory(reviewFolder);
+            CreateFolderIfNotExists(reviewFolder);
             foreach (String folder in reviewFoldersUsers) {
-                Directory.CreateDirectory(folder);
+                CreateFolderIfNotExists(folder);
             }
+        }
+
+        /// <summary>
+        /// Checks if the folder exists and creates it if it doesn't.
+        /// </summary>
+        /// <param name="folder">Full path to the folder</param>
+        /// <returns>If the folder existed</returns>
+        /// <remarks>Logs all the folder creations to console so the user is aware of it</remarks>
+        private static bool CreateFolderIfNotExists(string folder)
+        {
+            bool existed = Directory.Exists(folder);
+            if (!existed) {
+                string onlyFolder = folder.Replace(currentDirectory + "\\", "");
+                Directory.CreateDirectory(folder);
+                Console.WriteLine("\"{0}\" folder did not exist, so I created it.", onlyFolder);
+            }
+            return existed;
         }
 
         /// <summary>
         /// Returns the names of the files that should be copied.
         /// </summary>
+        /// <param name="folder">The full path to the folder</param>
         /// <returns>Only the names of the files</returns>
-        private static string[] FilesToCopy()
+        private static string[] FilesToCopy(string folder)
         {
-            return Directory.GetFiles(myFolder).Select(x => Path.GetFileName(x)).ToArray();
+            return Directory.GetFiles(folder).Select(x => Path.GetFileName(x)).ToArray();
         }
 
         /// <summary>
@@ -153,7 +186,7 @@ namespace ScalaExercisesMover
         /// <param name="log">Should we log each action to the console?</param>
         private static void CopyForTarget(int target, bool log = true)
         {
-            string[] fileNames = FilesToCopy();
+            string[] fileNames = FilesToCopy(myFolder);
             string targetFolder = reviewFoldersUsers[target];
             foreach (string fileName in fileNames) {
                 string sourceFile = targetFolder + @"\" + fileName;

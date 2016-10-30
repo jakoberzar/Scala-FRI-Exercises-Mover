@@ -17,6 +17,10 @@ The my and review folders are created automatically.
 ## Build
 At the moment, all you have to do is clone the project, open solution with visual studio and build it.
 
+## Download
+In case you don't want the fresh build but a stable one, the newest one is
+[Version 0.1](https://1drv.ms/u/s!AkCEKraqlagYguEvF7OPD1Jg19J-ag)
+
 ## Usage
 You can either always copy the program to the root folder or add it to path so you can call it from the root folder directly.
 

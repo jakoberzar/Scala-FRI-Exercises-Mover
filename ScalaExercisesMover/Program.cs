@@ -28,7 +28,6 @@ namespace ScalaExercisesMover
         static void Main(string[] args)
         {
             continousMode = args.Length == 0;
-
             
             try {
                 // Initialize
@@ -67,8 +66,10 @@ namespace ScalaExercisesMover
                 } else {
                     // It had to be one of the numbers
                     // Validate user input
-                    int currentTarget = int.Parse(stringInput) - 1;
-                    if (currentTarget < 0 || currentTarget > reviewFoldersUsers.Length - 1) {
+                    int currentTarget;
+                    bool inputIsANumber = int.TryParse(stringInput, out currentTarget);
+                    currentTarget--;
+                    if (currentTarget < 0 || currentTarget > reviewFoldersUsers.Length - 1 || !inputIsANumber) {
                         Exception e = new Exception("The given parameter for current target is out of bounds!");
                         WriteMessageAndError(e);
                         return;
@@ -99,6 +100,7 @@ namespace ScalaExercisesMover
         {
             Console.WriteLine(message);
             Console.WriteLine(error.Message);
+            Console.WriteLine("Press any key to close...");
             if (continousMode) Console.ReadKey();
         } 
 
@@ -224,6 +226,9 @@ namespace ScalaExercisesMover
             Console.WriteLine(sourceFile + " => " + destinationFile);
         }
 
+        /// <summary>
+        /// Backups the files from "my" folder to "my_old" folder
+        /// </summary>
         private static void BackupMy()
         {
             string backupFolder = currentDirectory + @"\my_old";

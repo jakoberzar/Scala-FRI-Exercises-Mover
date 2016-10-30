@@ -22,8 +22,7 @@ namespace ScalaExercisesMover
 
         // Testing
         // A folder that is used instead of real current directory; for testing.
-        static string testingDirectory = @"C:\Users\jakob\OneDrive\FRI II\Scala\W4";
-        //static string testingDirectory = @"";
+        static string testingDirectory = @"";
 
 
         static void Main(string[] args)

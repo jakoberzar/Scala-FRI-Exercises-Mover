@@ -9,21 +9,24 @@ namespace ScalaExercisesMover
 {
     class Program
     {
-        // Create the strings for the current folder
-        static string executionAssembly;
-        static string executionFolder;
-        // Create the strings for the custom folders
+        // Directory the program was called from
+        static string currentDirectory;
+        // Fields for the folders used
         static string myFolder;
         static string reviewFolder;
         static string[] reviewFoldersUsers;
-
+        // Project (teden) folder
         static string projectFolder;
+        // Whether the target argument was supplied or not
+        static bool continousMode;
 
-        static bool calledExternally;
+        // Testing
+        // A folder that is used instead of real current directory; for testing.
+        static string testingDirectory = @"C:\Users\jakob\OneDrive\FRI II\Scala\W4";
 
         static void Main(string[] args)
         {
-            calledExternally = args.Length > 0;
+            continousMode = args.Length == 0;
 
             // Initialize
             try {
@@ -41,65 +44,74 @@ namespace ScalaExercisesMover
                 return;
             }
 
-            // Get user input
-            user_input_point: // Using goto because I'm a prick!
-            string stringInput;
-            if (calledExternally) {
-                stringInput = args[0];
-            } else {
-                Console.WriteLine("Please write the number of user to move");
-                stringInput = Console.ReadLine();
-                if (stringInput == "q" || stringInput == "") {
+
+            // If the program is called without arguments, the user
+            // can leave the app opened and write the next number - hence the loop
+            do {
+                // Get user input
+                string stringInput;
+                if (continousMode) {
+                    Console.WriteLine("Please write the number of user to move");
+                    stringInput = Console.ReadLine();
+                    if (stringInput == "q" || stringInput == "") {
+                        return;
+                    }
+                } else {
+                    stringInput = args[0];
+                }
+
+                // Validate user input
+                int currentTarget = int.Parse(stringInput) - 1;
+                if (currentTarget < 0 || currentTarget > reviewFoldersUsers.Length - 1) {
+                    Exception e = new Exception("The given parameter for current target is out of bounds!");
+                    WriteMessageAndError(e);
                     return;
                 }
-            }
-            
-            // Validate user input
-            int currentTarget = int.Parse(stringInput) - 1;
-            if (currentTarget < 0 || currentTarget > reviewFoldersUsers.Length - 1) {
-                Console.WriteLine("The given parameter for current target is out of bounds!");
-                if (!calledExternally) Console.ReadKey();
-                return;
-            }
 
-            // Try to copy the files
-            try {
-                CopyForTarget(currentTarget);
-            } catch (Exception e) {
-                WriteMessageAndError(e);
-                return;
-            }
+                // Try to copy the files
+                try {
+                    CopyForTarget(currentTarget);
+                } catch (Exception e) {
+                    WriteMessageAndError(e);
+                    return;
+                }
 
-            if (!calledExternally) {
-                Console.WriteLine("If you wish to quit, press enter or \'q\'");
-                goto user_input_point;
-            }
-
-
+                if (continousMode) {
+                    Console.WriteLine("\nIf you wish to quit, press enter or \'q\'");
+                }
+            } while (continousMode);
         }
 
+        /// <summary>
+        /// Prints the message from exception and the additional message to the console.
+        /// </summary>
+        /// <param name="error">Exception, containing the detail of the error</param>
+        /// <param name="message">Additional message with explanation</param>
         private static void WriteMessageAndError(Exception error, string message = "There was an error!")
         {
             Console.WriteLine(message);
             Console.WriteLine(error.Message);
-            if (!calledExternally) Console.ReadKey();
+            if (continousMode) Console.ReadKey();
         } 
 
+        /// <summary>
+        /// Set the values in the global fields. Pretty much the constructor.
+        /// </summary>
         private static void InitializeFolderVariables()
         {
-            executionAssembly = System.Reflection.Assembly.GetEntryAssembly().Location.ToString();
-            executionFolder = Path.GetDirectoryName(executionAssembly);
+            currentDirectory = Environment.CurrentDirectory;
+            if (testingDirectory.Length > 0) currentDirectory = testingDirectory;
 
-            // Create the strings for the custom folders
-            myFolder = executionFolder + @"\my";
-            reviewFolder = executionFolder + @"\review";
+            // Initialize the strings for the other folders
+            myFolder = currentDirectory + @"\my";
+            reviewFolder = currentDirectory + @"\review";
             reviewFoldersUsers = new string[3];
             reviewFoldersUsers[0] = reviewFolder + @"\1st";
             reviewFoldersUsers[1] = reviewFolder + @"\2nd";
             reviewFoldersUsers[2] = reviewFolder + @"\3rd";
 
             try {
-                projectFolder = Directory.GetDirectories(executionFolder).First(x => {
+                projectFolder = Directory.GetDirectories(currentDirectory).First(x => {
                     return Path.GetFileName(x).StartsWith("teden");
                 });
             } catch (Exception e) {
@@ -114,8 +126,7 @@ namespace ScalaExercisesMover
         private static void CheckForFolders()
         {
             // Checks for the "my" folder
-            bool myExists = Directory.Exists(myFolder);
-            if (!myExists) throw new Exception("\"my\" folder does not exist!");
+            if (!Directory.Exists(myFolder)) throw new Exception("\"my\" folder does not exist!");
             int myFileCount = Directory.GetFiles(myFolder).Length;
             if (myFileCount == 0) throw new Exception("\"my\" folder does not have any files!");
 
@@ -127,16 +138,16 @@ namespace ScalaExercisesMover
         }
 
         /// <summary>
-        /// Returns the names of the files that should be copied
+        /// Returns the names of the files that should be copied.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Only the names of the files</returns>
         private static string[] FilesToCopy()
         {
             return Directory.GetFiles(myFolder).Select(x => Path.GetFileName(x)).ToArray();
         }
 
         /// <summary>
-        /// Performs the action of copying the files; point of the program
+        /// Performs the action of copying the files; point of the program.
         /// </summary>
         /// <param name="target">The number of the user</param>
         /// <param name="log">Should we log each action to the console?</param>
@@ -147,23 +158,25 @@ namespace ScalaExercisesMover
             foreach (string fileName in fileNames) {
                 string sourceFile = targetFolder + @"\" + fileName;
                 string destinationFile = projectFolder;
-                switch (fileName) {
-                    case "Main.scala":
-                        destinationFile += @"\src\main\scala\" + fileName;
-                        break;
-                    case "MainTests.scala":
-                        destinationFile += @"\src\test\scala\" + fileName;
-                        break;
-                    default:
-                        destinationFile += @"\src\main\scala\" + fileName;
-                        break;
-                }
+
+                string insideSrc = fileName.Contains("Test") ? "test" : "main";
+                destinationFile += String.Format("\\src\\{0}\\scala\\{1}", insideSrc, fileName);
 
                 File.Copy(sourceFile, destinationFile, true);
-                if (log) Console.WriteLine(sourceFile + " => " + destinationFile);
+                if (log) LogCopyToConsole(sourceFile, destinationFile);
             }
         }
-        
-        
+
+        /// <summary>
+        /// Logs the copy action to the console.
+        /// </summary>
+        /// <param name="source">The path of the source file</param>
+        /// <param name="dest">The path of the destination file</param>
+        private static void LogCopyToConsole(string source, string dest)
+        {
+            string sourceFile = source.Replace(currentDirectory, " ...");
+            string destinationFile = dest.Replace(currentDirectory, " ...");
+            Console.WriteLine(sourceFile + " => " + destinationFile);
+        }
     }
 }

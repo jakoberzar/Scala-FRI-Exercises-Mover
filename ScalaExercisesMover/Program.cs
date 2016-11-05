@@ -53,44 +53,52 @@ namespace ScalaExercisesMover
                     stringInput = args[0];
                 }
 
-                // Check if it was one of the special commands
-                if (stringInput == "q" || stringInput == "") {
-                    return;
-                } else if (stringInput == "my") {
-                    CopyForTarget(myFolder);
-                } else if (stringInput == "mytests") {
-                    string[] files = FilesToCopy(myFolder).Where(x => x.Contains("Test")).ToArray();
-                    CopyForTarget(myFolder, files);
-                } else if (stringInput == "updatemy") {
-                    Console.WriteLine("Backing up current files in my folder");
-                    BackupMy();
-                    Console.WriteLine("Copying files from project to \"my\" folder");
-                    CopyToMy();
-                } else {
-                    // It had to be one of the numbers
-                    // Validate user input
-                    int currentTarget;
-                    bool inputIsANumber = int.TryParse(stringInput, out currentTarget);
-                    currentTarget--;
-                    if (currentTarget < 0 || currentTarget > reviewFoldersUsers.Length - 1 || !inputIsANumber) {
-                        Exception e = new Exception("The given parameter for current target is out of bounds!");
-                        WriteMessageAndError(e);
+                // Determine the command and execute it
+                switch (stringInput) {
+                    case "q":
+                    case "":
                         return;
-                    }
 
-                    // Try to copy the files
-                    try {
-                        CopyForTarget(reviewFoldersUsers[currentTarget]);
-                    } catch (Exception e) {
-                        WriteMessageAndError(e);
-                        return;
-                    }
+                    case "my":
+                        CopyForTarget(myFolder);
+                        break;
+
+                    case "mytests":
+                        string[] files = FilesToCopy(myFolder).Where(x => x.Contains("Test")).ToArray();
+                        CopyForTarget(myFolder, files);
+                        break;
+
+                    case "updatemy":
+                        Console.WriteLine("Backing up current files in my folder");
+                        BackupMy();
+                        Console.WriteLine("Copying files from project to \"my\" folder");
+                        CopyToMy();
+                        break;
+
+                    default:
+                        // It had to be one of the numbers
+                        // Validate user input
+                        int currentTarget;
+                        bool inputIsANumber = int.TryParse(stringInput, out currentTarget);
+                        currentTarget--;
+                        if (currentTarget < 0 || currentTarget > reviewFoldersUsers.Length - 1 || !inputIsANumber) {
+                            Exception e = new Exception("The given parameter for current target is out of bounds!");
+                            WriteMessageAndError(e);
+                            return;
+                        }
+
+                        // Try to copy the files
+                        try {
+                            CopyForTarget(reviewFoldersUsers[currentTarget]);
+                        } catch (Exception e) {
+                            WriteMessageAndError(e);
+                            return;
+                        }
+                        break;
                 }
 
+                if (continousMode) Console.WriteLine("\nIf you wish to quit, press enter or \'q\'");
 
-                if (continousMode) {
-                    Console.WriteLine("\nIf you wish to quit, press enter or \'q\'");
-                }
             } while (continousMode);
         }
 
@@ -205,9 +213,7 @@ namespace ScalaExercisesMover
         private static void CopyForTarget(string targetFolder, string[] fileNames = null)
         {
             // Get files if they aren't passed in
-            if (fileNames == null) {
-                fileNames = FilesToCopy(myFolder);
-            }
+            fileNames = fileNames ?? FilesToCopy(myFolder);
 
             // Loop through and copy them to appropriate folders
             foreach (string fileName in fileNames) {

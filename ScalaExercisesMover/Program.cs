@@ -46,7 +46,7 @@ namespace ScalaExercisesMover
                 // Get user input
                 string stringInput;
                 if (continousMode) {
-                    Console.WriteLine("Available commands: {1, 2, 3, my, updatemy, q}");
+                    Console.WriteLine("Available commands: {1, 2, 3, my, mytests, updatemy, q}");
                     stringInput = Console.ReadLine();
                     Console.WriteLine("--------");
                 } else {
@@ -58,6 +58,9 @@ namespace ScalaExercisesMover
                     return;
                 } else if (stringInput == "my") {
                     CopyForTarget(myFolder);
+                } else if (stringInput == "mytests") {
+                    string[] files = FilesToCopy(myFolder).Where(x => x.Contains("Test")).ToArray();
+                    CopyForTarget(myFolder, files);
                 } else if (stringInput == "updatemy") {
                     Console.WriteLine("Backing up current files in my folder");
                     BackupMy();
@@ -198,10 +201,15 @@ namespace ScalaExercisesMover
         /// Performs the action of copying the files; point of the program.
         /// </summary>
         /// <param name="targetFolder">The folder to copy from, full path</param>
-        /// <param name="log">Should we log each action to the console?</param>
-        private static void CopyForTarget(string targetFolder, bool log = true)
+        /// <param name="fileNames">Files to copy. Gets them automatically if not passed</param>
+        private static void CopyForTarget(string targetFolder, string[] fileNames = null)
         {
-            string[] fileNames = FilesToCopy(myFolder);
+            // Get files if they aren't passed in
+            if (fileNames == null) {
+                fileNames = FilesToCopy(myFolder);
+            }
+
+            // Loop through and copy them to appropriate folders
             foreach (string fileName in fileNames) {
                 string sourceFile = targetFolder + @"\" + fileName;
                 string destinationFile = projectFolder;
@@ -210,7 +218,7 @@ namespace ScalaExercisesMover
                 destinationFile += String.Format("\\src\\{0}\\scala\\{1}", insideSrc, fileName);
 
                 File.Copy(sourceFile, destinationFile, true);
-                if (log) LogCopyToConsole(sourceFile, destinationFile);
+                LogCopyToConsole(sourceFile, destinationFile);
             }
         }
 

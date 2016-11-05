@@ -41,3 +41,5 @@ Afterwards, run it with paramater "1" to copy the 1st one's files to the project
 _(similar goes for `2` and `3`)_
 
 `q` or _enter_ quits the continous mode.
+
+`mytests` (_0.2 feature_) Copies tests from 'my' folder to project folder

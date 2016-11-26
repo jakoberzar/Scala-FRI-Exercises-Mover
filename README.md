@@ -19,7 +19,7 @@ At the moment, all you have to do is clone the project, open solution with visua
 
 ## Download
 In case you don't want the fresh build but a stable one, the newest one is
-[Version 0.1](https://1drv.ms/u/s!AkCEKraqlagYguEvF7OPD1Jg19J-ag)
+[Version 0.2](https://1drv.ms/u/s!AkCEKraqlagYg4Z0RS-ZtRVTtepbFQ)
 
 ## Usage
 You can either always copy the program to the root folder or add it to path so you can call it from the root folder directly.
@@ -35,11 +35,11 @@ Afterwards, run it with paramater "1" to copy the 1st one's files to the project
 ## Commands
 `my` Copies files from 'my' folder to project folder
 
+`mytests` Copies tests from 'my' folder to project folder
+
 `updatemy` Updates the 'my' folder from project folder
 
 `1` Copies files from 'review/1st' folder to project folder
 _(similar goes for `2` and `3`)_
 
 `q` or _enter_ quits the continous mode.
-
-`mytests` (_0.2 feature_) Copies tests from 'my' folder to project folder

@@ -46,7 +46,7 @@ namespace ScalaExercisesMover
                 // Get user input
                 string stringInput;
                 if (continousMode) {
-                    Console.WriteLine("Available commands: {1, 2, 3, my, mytests, updatemy, q}");
+                    Console.WriteLine("Available commands: {1, 2, 3, 4, 5, my, mytests, updatemy, q}");
                     stringInput = Console.ReadLine();
                     Console.WriteLine("--------");
                 } else {
@@ -126,10 +126,12 @@ namespace ScalaExercisesMover
             // Initialize the strings for the other folders
             myFolder = currentDirectory + @"\my";
             reviewFolder = currentDirectory + @"\review";
-            reviewFoldersUsers = new string[3];
+            reviewFoldersUsers = new string[5];
             reviewFoldersUsers[0] = reviewFolder + @"\1st";
             reviewFoldersUsers[1] = reviewFolder + @"\2nd";
             reviewFoldersUsers[2] = reviewFolder + @"\3rd";
+            reviewFoldersUsers[3] = reviewFolder + @"\4th";
+            reviewFoldersUsers[4] = reviewFolder + @"\5th";
 
             try {
                 projectFolder = Directory.GetDirectories(currentDirectory).First(x => {
